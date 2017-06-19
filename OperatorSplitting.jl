@@ -49,6 +49,8 @@ module OperatorSplitting
 
       M, N = size(A)
 
+      # scan the blocks to 
+
 
       # construct the Problem blocks
       constraintBlocks = Matrix{ProblemBlock}(M, N)
