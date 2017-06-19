@@ -6,7 +6,9 @@ Currently it is an auxiliary project to support my scientific research, but who 
 The problem is as follows:
 
 fx + gy -> min
+
 Ax = y
 
 x in [xmin, xmax]
+
 subset of x is integer
