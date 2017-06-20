@@ -2,11 +2,13 @@ module OperatorSplitting
 
   typealias SPMatrix{T} SparseMatrixCSC{T}
 
+  typealias SPArray{T} SparseMatrixCSC{T}
+
   type ProblemBlock
     A::SPMatrix{Float} # block of the problem
     y::Vector{Float} # rhs for this block
-    M::Integer # number of the block
-    N::Integer # col number of the block
+    i::Integer # number of the block
+    j::Integer # col number of the block
 
     xdim::Integer # number of cols
     ydim::Integer # number of rows
@@ -14,25 +16,25 @@ module OperatorSplitting
     function ProblemBlock(
       A::SPMatrix{Float},
       y::Vector{Float},
-      M::Integer,
-      N::Integer)
+      i::Integer,
+      j::Integer)
       xd, yd = size(A)
-      return new(A, y, M, N, xd, yd)
+      return new(A, y, i, j, xd, yd)
     end
   end
 
   type LinFunctionalBlock
     f::Vector{Float} # functional coefficients
-    N::Integer # number of the block
+    j::Integer # number of the block
 
-    LinFunctionalBlock(f::Vector{Float}, N::Integer) = new(f, N)
+    LinFunctionalBlock(f::Vector{Float}, j::Integer) = new(f, j)
   end
 
   type Problem
-    constraintBlocks::Matrix{ProblemBlock}
+    constraintBlocks::SPMatrix{ProblemBlock}
     objective::Array{LinearFunctionalBlock}
 
-    nnz_ij::Matrix{Integer} #nonzero block indices
+    # nnz_ij::Matrix{Integer} #nonzero block indices
 
     eps_rel::Float = 1e-3
     eps_abs::Float = 1e-2
@@ -47,16 +49,24 @@ module OperatorSplitting
       eps_rel = read(file, "eps_rel")
       eps_abs = read(file, "eps_abs")
 
-      M, N = size(A)
+      M = read(file, "M")
+      N = read(file, "N")
 
-      # scan the blocks to 
+      # scan the blocks to
+      objective =
+        [LinearFunctionalBlock(f[j], j) for eachindex(f)]
 
 
       # construct the Problem blocks
-      constraintBlocks = Matrix{ProblemBlock}(M, N)
+      constraintBlocks = SPMatrix{ProblemBlock}(M, N)
+      for block in A
+        i = block.i
+        j = block.j
+        constraintBlocks[i, j] = ProblemBlock(block)
+      end
 
       # create object
-      return new(A, f)
+      return new(constraintBlocks, objective, eps_rel, eps_abs)
 
     end
   end
