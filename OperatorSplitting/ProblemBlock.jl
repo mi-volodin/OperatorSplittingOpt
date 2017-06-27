@@ -1,4 +1,4 @@
-type ProblemBlock
+struct ProblemBlock
   A::SPMatrix{Float} # block of the problem
   y::Vector{Float} # rhs for this block
   i::Integer # number of the block
