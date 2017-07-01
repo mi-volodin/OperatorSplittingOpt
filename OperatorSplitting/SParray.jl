@@ -11,3 +11,10 @@ struct SPArray{Tv, Ti<:Integer}
     rowval::Vector{Ti},
     nzval::Vector{Tv}) where {Tv, Ti<:Integer}  = new(m,n, colptr, rowval, nzval)
 end
+
+# function getindex(A::SPArray, I_1, I_2)
+#   col = colptr[I_1]
+#
+#   rowmask = rowval[colmask] == I_1
+#   (nzval[colmask])[rowmask]
+# end
