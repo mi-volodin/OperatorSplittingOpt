@@ -5,36 +5,23 @@ using OperatorSplitting
 
 testprb = Problem("dense_jl.mat")
 
+testprb.constraintBlocks[1,1]
+
 A = 3.0
 
-dd = Dict
+assert(1==2)
 
+B = sprand(5,5,0.5)
 
+nzrange(B, 2)[1:1]
 
-convert(Int, A)
+rowvals(B)
 
-typeof(A)<:Float64
+rows = rowvals(B)
+nnz = nonzeros(B)
 
-a = ["1" 2 3 "5"]
-
-methods(indexin)
-
-vec(a)
-maximum(a)
-
-sortrows(a,by=x-> x[[2,1]], lt=(x,y)->isless2(x,y) )
-
-struct MMM
-  A::Matrix{Int}
+for j = 1:5
+  for i = nzrange(B, j)
+    println(rows[i], j, i, j)
+  end
 end
-
-M = MMM(ones(5,10))
-
-import Base.getindex
-
-function getindex(X::MMM, I_1)
-  print(I_1)
-  I_1
-end
-
-M[1:4] + 1
