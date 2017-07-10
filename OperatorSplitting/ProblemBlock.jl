@@ -1,6 +1,6 @@
 struct ProblemBlock
   A::SPMatrix{Float} # block of the problem
-  y::Vector{Float} # rhs for this block
+  # y::Vector{Float} # rhs for this block
   i::Integer # number of the block
   j::Integer # col number of the block
 
@@ -9,30 +9,30 @@ struct ProblemBlock
 
   function ProblemBlock(
     A::SPMatrix{Float},
-    y::Vector{Float},
+    # y::Vector{Float},
     i::Integer,
     j::Integer)
     xd, yd = size(A)
-    return new(A, y, i, j, xd, yd)
+    return new(A, i, j, xd, yd)
   end
 
-  function ProblemBlock(
-    A::SPMatrix{Float},
-    y::Number,
-    i::Integer,
-    j::Integer)
+  # function ProblemBlock(
+  #   A::SPMatrix{Float},
+  #   # y::Number,
+  #   i::Integer,
+  #   j::Integer)
+  #
+  #   if y != 0
+  #     error("Expected to be zero")
+  #   end
+  #   xd, yd = size(A)
+  #   y = zeros(Float, xd)
+  #   return new(A, y, i, j, xd, yd)
+  # end
 
-    if y != 0
-      error("Expected to be zero")
-    end
-    xd, yd = size(A)
-    y = zeros(Float, xd)
-    return new(A, y, i, j, xd, yd)
-  end
+  ProblemBlock(d::Dict{String}) =
+    ProblemBlock(d["A"], convert(Int, d["i"]), convert(Int, d["j"]))
 
-  ProblemBlock(d::Dict{String}) = typeof(d["y"])<:Number ?
-    ProblemBlock(d["A"], d["y"], convert(Int, d["i"]), convert(Int, d["j"])) :
-    ProblemBlock(d["A"], vec(d["y"]), convert(Int, d["i"]), convert(Int, d["j"]))
 end
 
 
