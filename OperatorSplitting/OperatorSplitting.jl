@@ -27,41 +27,60 @@ module OperatorSplitting
     j::Integer # number of the block
   end
 
-  zeros(vb::VectorBlock) = zeros(vb.v)
+  # import Base.getindex
+  # import Base.convert
+  # getindex(vb::VectorBlock, j::Int) = typeof(v) <: Number ? v : v[j]
+  # convert(T::Type, vb::VectorBlock) = convert(T, vb.v)
+  # zeros(vb::VectorBlock) = zeros(vb.v)
 
   include("Problem.jl")
 
 
 
   function solveLP(prb::Problem)
-
-
     ##
     # Algorithm variables initializations
     ##
     M, N = size(prb.Ablocks)
+    display((M,N))
 
-    y_i = Array{Vector{Float}}(N); # <- right hand side
+    ## x_j and y_i
+    y_i = Array{Vector{Float}}(M); # <- right hand side
     for i in eachindex(y_i)
-      y_i(i) = typeof(prb.yblocks[i]) <: Number ? zeros(getydim(prb, i)) : prb.yblocks[i]
+      y_i[i] = length(prb.yblocks[i].v) == 1 ?
+        zeros(getydim(prb, i)) : vec(prb.yblocks[i].v)
     end
 
     x_j = Array{Vector{Float}}(N); # <- x_0 or zeros vector
     for j in eachindex(x_j)
-      x_j(j) = zeros(getxdim(prb, j))
+      x_j[j] = zeros(getxdim(prb, j))
     end
 
-    # x_j_half = copy(x_j); # <- x_j
-    # y_i_half = copy(y_i); # <- y_i
+    x_j_half = deepcopy(x_j); # <- x_j
+    y_i_half = deepcopy(y_i); # <- y_i
 
-    x_ij = 0; # <- x_j for j and any i
-    y_ij = 0; # <- y_i for i and any j
+    ## x_ij and y_ij
+    I, J = findnz(prb.Ablocks)
+    display((maximum(I), maximum(J)))
+    x_zerovals = [deepcopy(x_j[j]) for j in J]
+    y_zerovals = [deepcopy(y_i[i]) for i in I]
 
-    x_ij_half = x_ij; # <- x_ij
+    x_ij = sparse(I, J, x_zerovals, M, N); # <- x_j for j and any i
+    y_ij = sparse(I, J, y_zerovals, M, N); # <- y_i for i and any j
 
-    y_i_hat = 0;
-    x_j_hat = 0;
-    x_ij_hat = 0;
+    x_ij_half = deepcopy(x_ij); # <- x_ij
+
+    y_i_hat = deepcopy(y_i); # <- zeros of size y_i
+    x_j_hat = deepcopy(x_j); # <- zeros of size x_j
+    x_ij_hat = deepcopy(x_ij_half); # <- zeros of same as x_ij_half
+
+    ##
+    # Test prox
+    ##
+
+    for j = 1:N
+
+    end
   end
 
 end
