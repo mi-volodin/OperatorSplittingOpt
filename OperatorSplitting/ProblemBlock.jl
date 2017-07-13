@@ -4,16 +4,16 @@ struct ProblemBlock
   i::Integer # number of the block
   j::Integer # col number of the block
 
-  xdim::Integer # number of cols
-  ydim::Integer # number of rows
+  xdim(pb::ProblemBlock) = size(pb.A, 1) # number of cols
+  ydim(pb::ProblemBlock) = size(pb.A, 2) # number of rows
 
   function ProblemBlock(
     A::SPMatrix{Float},
     # y::Vector{Float},
     i::Integer,
     j::Integer)
-    xd, yd = size(A)
-    return new(A, i, j, xd, yd)
+    # xd, yd = size(A)
+    return new(A, i, j)
   end
 
   # function ProblemBlock(

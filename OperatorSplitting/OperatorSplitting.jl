@@ -2,6 +2,7 @@ module OperatorSplitting
 
   export Problem
   using MAT
+  using ProximalOperators
 
   SPMatrix{T} = SparseMatrixCSC{T, Int}
   SPArray{T} = SparseMatrixCSC{T, Int}
@@ -75,12 +76,21 @@ module OperatorSplitting
     x_ij_hat = deepcopy(x_ij_half); # <- zeros of same as x_ij_half
 
     ##
-    # Test prox
+    # proximal initializations
     ##
 
-    for j = 1:N
 
-    end
+    prox_f = [IndBox(prb.dom_l[j], prb.dom_u[j]) for j in 1:N]
+    prox_A = [IndAffine(prb.Ablocks[i, j].A,
+                        length(prb.yblocks[i].v) > 1 ?
+                          prb.yblocks[i].v :
+                          zeros(size(prb.Ablocks[i,j].A, 1))
+                        )
+                for (i, j) in zip(I, J)]
+
+    ##
+    # Algorithm run
+    ##
+
   end
-
 end

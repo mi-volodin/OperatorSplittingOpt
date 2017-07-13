@@ -5,23 +5,25 @@ using OperatorSplitting
 
 testprb = Problem("dense_jl.mat")
 
-testprb.constraintBlocks[1,1]
+OperatorSplitting.solveLP(testprb)
 
-A = 3.0
+g = zeros(5)
 
-assert(1==2)
+using ProximalOperators
 
-B = sprand(5,5,0.5)
+a = [1 2  3]
+b = [3; 2; 1]
 
-nzrange(B, 2)[1:1]
+x = [1; 1; 1]
 
-rowvals(B)
+g = IndBox([0;0;0], [1;1;1])
 
-rows = rowvals(B)
-nnz = nonzeros(B)
+myprox(v, lam) = prox(g, v - lam * a, lam)
 
-for j = 1:5
-  for i = nzrange(B, j)
-    println(rows[i], j, i, j)
-  end
-end
+
+v = [3 2.5 3]
+myprox(v, 1)
+
+a = sparse([1, 2, 1], [1,2,3], [1,1,1], 2, 3)
+
+pinv(full(a))
