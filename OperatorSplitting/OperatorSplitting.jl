@@ -35,6 +35,7 @@ module OperatorSplitting
   # zeros(vb::VectorBlock) = zeros(vb.v)
 
   include("Problem.jl")
+  include("IndGraph.jl")
 
 
 
@@ -81,12 +82,7 @@ module OperatorSplitting
 
 
     prox_f = [IndBox(prb.dom_l[j], prb.dom_u[j]) for j in 1:N]
-    prox_A = [IndAffine(prb.Ablocks[i, j].A,
-                        length(prb.yblocks[i].v) > 1 ?
-                          prb.yblocks[i].v :
-                          zeros(size(prb.Ablocks[i,j].A, 1))
-                        )
-                for (i, j) in zip(I, J)]
+    prox_A = [IndGraph(prb.Ablocks[i, j].A) for (i, j) in zip(I, J)]
 
     ##
     # Algorithm run

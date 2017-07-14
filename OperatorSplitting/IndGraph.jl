@@ -9,24 +9,30 @@ Returns the function `g = ind{(x, y) : Ax = y}`.
 
 Returns the function `g = ind{(x, y) : dot(a,x) = y}`.
 """
-
+# if !isdefined(:RealOrComplex)
+  RealOrComplex = Union{Real, Complex}
+# end
+#
 struct IndGraph{T <: RealOrComplex} <: ProximableFunction
   m::Int
   n::Int
-  K::AbstractArray{T,2}
+  A::AbstractArray{T,2}
+  At::AbstractArray{T,2}
   F::Base.SparseArrays.CHOLMOD.Factor{Float64}
-  A = @view K[end - m: end, 1:n]
-  At = @view K[1:n, end-m:end]
+  # A = @view K[end - m: end, 1:n]
+  # At = @view K[1:n, end-m:end]
   function IndGraph(A::AbstractArray{T,2})
     if !issparse(A)
       error("Not implemented")
     end
     m, n = size(A)
-    K = [speye(n) A'; A -speye(m)]
+    At = A'
+    K = [speye(n) At; A -speye(m)]
+
     F = LinAlg.ldltfact(K)
     #normrows = vec(sqrt.(sum(abs2.(A), 2)))
 
-    new (m, n, K, F)
+    new(m, n, A, At, F)
   end
 end
 
@@ -53,12 +59,12 @@ function prox!{T <: RealOrComplex}(
     d::AbstractArray{T, 1},
     f::IndGraph,
     x::AbstractArray{T, 1},
-    y::AbstractArray{T, 1}
+    y::AbstractArray{T, 1},
     gamma::Real=1.0)
   res = [c + f.At * d; zeros(f.m)]
   cd = f.F \ res
-  c[:] = cd[1:n]
-  d[:] = cd[end - m:end]
+  c[:] = cd[1:f.n]
+  d[:] = cd[end - f.m:end]
   return 0.0
 end
 
@@ -73,11 +79,9 @@ function prox_naive{T <: RealOrComplex}(
     d::AbstractArray{T, 1},
     f::IndGraph,
     x::AbstractArray{T, 1},
-    y::AbstractArray{T, 1}
+    y::AbstractArray{T, 1},
     gamma::Real=1.0)
   res = [c + f.At * d; zeros(f.m)]
   cd = f.F \ res
-  c[:] = cd[1:n]
-  d[:] = cd[end - m:end]
-  return cd[1:n], cd[end - m:end], 0.0
+  return cd[1:f.n], cd[end - f.m:end], 0.0
 end
